@@ -17,9 +17,8 @@ Problem: Car 0 - 100 km/h
          choose between break and presure ???
 '''
 
-breaking = np.arange(0, 11)
-pressure = np.arange(0, 11)
 
+break_pressure = np.arange(0, 101)
 velocity = np.arange(0, 101)
 x_distance = np.arange(0, 101)
 
