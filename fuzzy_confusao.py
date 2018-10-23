@@ -17,7 +17,7 @@ Problem: Car 0 - 100 km/h
          define the break pressure
 '''
 
-
+#Range of values
 break_pressure = np.arange(0, 101)
 speed = np.arange(0, 101)
 x_distance = np.arange(0, 101)
@@ -32,11 +32,15 @@ v_fast = fuzz.trimf(speed, [75, 90, 100])
 v_avg = fuzz.trimf(speed, [40, 60, 85])
 v_slow = fuzz.trimf(speed, [1, 25, 50])
 
-#outpu
+#output
 light_break_pressure = fuzz.trimf(break_pressure, [0, 15, 30])
 medium_break_pessure = fuzz.trimf(break_pressure, [20, 40, 55])
 heavy_break_pressure = fuzz.trimf(break_pressure, [50, 75, 100])
 
+#TODO
+#Gaussian representation
+
+#Some Graphics
 plt.figure()
 
 plt.plot(x_distance, x_short_distance, 'b', linewidth=1.5, label='Short')
@@ -62,11 +66,25 @@ plt.title('Break Pressure')
 
 plt.show()
 
+# Rule application - membership
+
+#What the xx values are for?
+low_distance = fuzz.interp_membership(x_distance, x_short_distance, 6.5 )
+medium_distance = fuzz.interp_membership(x_distance, medium_break_pessure, 6.5)
+high_distance = fuzz.interp_membership(x_distance, heavy_break_pressure, 6.5)
+
+low_speed = fuzz.interp_membership(speed, v_slow, 8.8)
+medium_speed = fuzz.interp_membership(speed, v_avg, 8.8)
+high_speed =  fuzz.interp_membership(speed, v_fast, 8.8)
 
 
-# Rules membership
-#rule1 = np.fmax(x_long_distance, v_fast)
-#activate_pressure
+# Rules
+rule1 = np.fmax(high_distance, low_speed)
+activate_rule1 = np.fmin(rule1, light_break_pressure)
+
+rule2 = 
+
+rule3 =
 
 
 
