@@ -16,6 +16,7 @@ Problem: Car 0 - 100 km/h
 
          define the break pressure
 '''
+## First version test
 
 #Range of values
 break_pressure = np.arange(0, 101)
@@ -69,22 +70,34 @@ plt.show()
 # Rule application - membership
 
 #What the xx values are for?
-low_distance = fuzz.interp_membership(x_distance, x_short_distance, 6.5 )
-medium_distance = fuzz.interp_membership(x_distance, medium_break_pessure, 6.5)
-high_distance = fuzz.interp_membership(x_distance, heavy_break_pressure, 6.5)
+low_distance = fuzz.interp_membership(x_distance, x_short_distance, x_distance )
+medium_distance = fuzz.interp_membership(x_distance, medium_break_pessure, x_distance)
+high_distance = fuzz.interp_membership(x_distance, heavy_break_pressure, x_distance)
 
-low_speed = fuzz.interp_membership(speed, v_slow, 8.8)
-medium_speed = fuzz.interp_membership(speed, v_avg, 8.8)
-high_speed =  fuzz.interp_membership(speed, v_fast, 8.8)
+low_speed = fuzz.interp_membership(speed, v_slow, speed)
+medium_speed = fuzz.interp_membership(speed, v_avg, speed)
+high_speed =  fuzz.interp_membership(speed, v_fast, speed)
 
 
-# Rules
+# set of rules
 rule1 = np.fmax(high_distance, low_speed)
 activate_rule1 = np.fmin(rule1, light_break_pressure)
 
-rule2 = 
+rule2 = np.fmax(high_distance, medium_speed)
+activate_rule2 = np.fmin(rule2, light_break_pressure)
 
-rule3 =
+rule3 = np.fmax(high_distance, high_speed)
+activate_rule3 = np.fmin(rule3, medium_break_pessure)
+
+# Aggregate all three output membership functions together
+aggregated = np.fmax(activate_rule1, np.fmax(activate_rule2, activate_rule3))
+
+# Calculate defuzzified result,
+pressure = fuzz.defuzz(break_pressure, aggregated, 'centroid')
+print(pressure)
+
+
+
 
 
 
