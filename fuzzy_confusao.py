@@ -85,6 +85,7 @@ plt.show()
 #R1 = fuzz.relation_product(x_almost_too_close, v_fast)
 
 #What the xx values are for?
+#work beter on this------------------------------------------------------------------------------------
 too_close_distance = fuzz.interp_membership(x_distance, x_too_close, x_distance)
 almost_too_close_distance = fuzz.interp_membership(x_distance, x_almost_too_close, x_distance)
 low_distance = fuzz.interp_membership(x_distance, x_short_distance, x_distance )
@@ -116,7 +117,7 @@ aggregated = np.fmax(activate_rule1, np.fmax(activate_rule2, np.fmax(activate_ru
 # Calculate defuzzified result,
 pressure = fuzz.defuzz(break_pressure, aggregated, 'centroid')
 print(pressure)
-
+#--------------------------------------------------------------------------------------------------------
 
 
 
