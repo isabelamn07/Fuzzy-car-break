@@ -1,6 +1,5 @@
 import numpy as np 
 import skfuzzy as fuzz
-#import random
 import matplotlib.pyplot as plt
 
 """
@@ -28,13 +27,13 @@ break_pressure = np.arange(0, 101)
 
 ## Membership
 ## Defining values and sets:
-## Distance: too_close, almost_too_close short_distance, average_distance, long distance
+## Distance: too_close, almost_too_close short_distance, medium_distance, long distance
 
-x_too_close = fuzz.trimf(x_distance,[0, 2, 4])
-x_almost_too_close = fuzz.trimf(x_distance, [3, 6, 10])
-x_short_distance = fuzz.trimf(x_distance, [10, 20, 30])
-x_average_distance = fuzz.trimf(x_distance, [25, 50, 75])
-x_long_distance = fuzz.trimf(x_distance,[50, 75, 100])
+x_too_close = fuzz.gaussmf(x_distance, 0, 4)
+x_almost_too_close = fuzz.gaussmf(x_distance, 10, 3)
+x_short_distance = fuzz.gaussmf(x_distance, 27, 6)
+x_medium_distance = fuzz.gaussmf(x_distance, 50, 7.1)
+x_long_distance = fuzz.gaussmf(x_distance, 100, 15)
 
 ## Speed: too_slow, slow, avg, fast
 #input
@@ -58,7 +57,7 @@ plt.figure()
 plt.plot(x_distance, x_too_close, 'r', linewidth=1.5, label='Close')
 plt.plot(x_distance, x_almost_too_close, 'y', linewidth=1.5, label='Almost')
 plt.plot(x_distance, x_short_distance, 'b', linewidth=1.5, label='Short')
-plt.plot(x_distance, x_average_distance, 'k', linewidth=1.5, label='Avg')
+plt.plot(x_distance, x_medium_distance, 'k', linewidth=1.5, label='Avg')
 plt.plot(x_distance, x_long_distance, 'm', linewidth=1.5, label='Long')
 plt.title('Distance')
 
