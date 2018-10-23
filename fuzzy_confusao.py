@@ -33,14 +33,14 @@ x_too_close = fuzz.gaussmf(x_distance, 0, 4)
 x_almost_too_close = fuzz.gaussmf(x_distance, 10, 3)
 x_short_distance = fuzz.gaussmf(x_distance, 27, 6)
 x_medium_distance = fuzz.gaussmf(x_distance, 50, 7.1)
-x_long_distance = fuzz.gaussmf(x_distance, 100, 15)
+x_long_distance = fuzz.gaussmf(x_distance, 100, 30)
 
 ## Speed: too_slow, slow, avg, fast
 #input
-v_too_slow = fuzz.trimf(speed,[1, 15, 30])
-v_slow = fuzz.trimf(speed, [25, 40, 55])
-v_avg = fuzz.trimf(speed, [50, 70, 85])
-v_fast = fuzz.trimf(speed, [80, 90, 100])
+v_too_slow = fuzz.gaussmf(x_distance, 0, 16)
+v_slow = fuzz.gaussmf(x_distance, 40, 6)
+v_avg = fuzz.gaussmf(x_distance, 70, 7)
+v_fast = fuzz.gaussmf(x_distance, 100, 16)
 
 ## break pressure: light,medium, heavy
 
