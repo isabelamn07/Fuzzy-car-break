@@ -49,36 +49,39 @@ def fuzzy_result(def_speed, def_distance):
     heavy_break_pressure = fuzz.gaussmf(break_pressure, 100, 20)
 
     # Some Graphics
-    plt.figure()
+    fig, (ax0, ax1, ax2) = plt.subplots(nrows=3, figsize=(8, 9))
 
-    plt.plot(distance_axis, x_close_distance, 'r', linewidth=1.5, label='Close')
-    plt.plot(distance_axis, x_short_distance, 'b', linewidth=1.5, label='Short')
-    plt.plot(distance_axis, x_medium_distance, 'k', linewidth=1.5, label='Avg')
-    plt.plot(distance_axis, x_long_distance, 'm', linewidth=1.5, label='Long')
-    plt.title('Distance')
-    plt.legend(('Close', 'Short', 'Medium', 'Long'),
-        loc='upper right')
+    ax0.plot(distance_axis, x_close_distance, 'r', linewidth=1.5, label='Close')
+    ax0.plot(distance_axis, x_short_distance, 'b', linewidth=1.5, label='Short')
+    ax0.plot(distance_axis, x_medium_distance, 'k', linewidth=1.5, label='Avg')
+    ax0.plot(distance_axis, x_long_distance, 'm', linewidth=1.5, label='Long')
+    ax0.set_title('Distance')
+    ax0.legend(('Close', 'Short', 'Medium', 'Long'),
+        loc='center right')
 
-    plt.figure()
+    ax1.plot(speed_axis, v_slowest, 'r', linewidth=1.5, label='Slowest')
+    ax1.plot(speed_axis, v_slow, 'b', linewidth=1.5, label='Slow')
+    ax1.plot(speed_axis, v_avg, 'k', linewidth=1.5, label='Medium')
+    ax1.plot(speed_axis, v_fast, 'm', linewidth=1.5, label='Fast')
+    ax1.set_title('Speed')
+    ax1.legend(('Very Slow', 'Slow', 'Medium', 'Fast'),
+        loc='center right')
 
-    plt.plot(speed_axis, v_slowest, 'r', linewidth=1.5, label='Slowest')
-    plt.plot(speed_axis, v_slow, 'b', linewidth=1.5, label='Slow')
-    plt.plot(speed_axis, v_avg, 'k', linewidth=1.5, label='Medium')
-    plt.plot(speed_axis, v_fast, 'm', linewidth=1.5, label='Fast')
-    plt.title('Speed')
-    plt.legend(('Very Slow', 'Slow', 'Medium', 'Fast'),
-        loc='upper right')
+    ax2.plot(break_pressure, light_break_pressure, 'b', linewidth=1.5, label='Light')
+    ax2.plot(break_pressure, medium_break_pressure, 'k', linewidth=1.5, label='Half')
+    ax2.plot(break_pressure, heavy_break_pressure, 'm', linewidth=1.5, label='Heavy')
+    ax2.set_title('Break Pressure')
+    ax2.legend(('Light', 'Medium', 'Heavy'),
+        loc='center right')
 
-    plt.figure()
+    # Turn off top/right axes
+    for ax in (ax0, ax1, ax2):
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
 
-    plt.plot(break_pressure, light_break_pressure, 'b', linewidth=1.5, label='Light')
-    plt.plot(break_pressure, medium_break_pressure, 'k', linewidth=1.5, label='Half')
-    plt.plot(break_pressure, heavy_break_pressure, 'm', linewidth=1.5, label='Heavy')
-    plt.title('Break Pressure')
-    plt.legend(('Light', 'Medium', 'Heavy'),
-        loc='upper right')
-
-    #plt.show()
+    plt.tight_layout()
 
     # Membership
     member_close_dist = fuzz.interp_membership(distance_axis, x_close_distance, def_distance)
@@ -214,9 +217,9 @@ R16 Close        Fast        heavy pressure
 
     for ax in (ax0,):
         ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
+        ax.spines['right'].set_visible(False)
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
 
     plt.tight_layout()
 
