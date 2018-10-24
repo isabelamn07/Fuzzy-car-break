@@ -2,20 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import skfuzzy as fuzz
 
+## Final version
 
-# # Second version test
 """
 Problem: Car 0 - 100 km/h
          Distance: 0 - 100m
          Define the break pressure
 """
 
+# functions used on the rules set
 def average(val1, val2):
     return (val1 + val2) / 2
 
 def getIntermediate(val1, val2):
     return val2 if (val1 > 0.75) else val1
 
+# Main program
 def fuzzy_result(def_speed, def_distance):
     # input
     speed_axis = np.arange(0, 101)
@@ -26,16 +28,16 @@ def fuzzy_result(def_speed, def_distance):
 
     # # Membership
     # # Defining values and sets:
-    # # Distance: too_close, almost_too_close short_distance, medium_distance, long distance
+    # # Distance: too_close, short_distance, medium_distance, long distance
 
-    x_too_close = fuzz.gaussmf(distance_axis, 0, 10)
+    x_close_distance = fuzz.gaussmf(distance_axis, 0, 10)
     x_short_distance = fuzz.gaussmf(distance_axis, 27, 6)
     x_medium_distance = fuzz.gaussmf(distance_axis, 50, 7.1)
     x_long_distance = fuzz.gaussmf(distance_axis, 100, 30)
 
     # # Speed: too_slow, slow, avg, fast
     # input
-    v_too_slow = fuzz.gaussmf(speed_axis, 0, 16)
+    v_slowest = fuzz.gaussmf(speed_axis, 0, 16)
     v_slow = fuzz.gaussmf(speed_axis, 25, 8)
     v_avg = fuzz.gaussmf(speed_axis, 50, 16)
     v_fast = fuzz.gaussmf(speed_axis, 100, 10)
@@ -49,7 +51,7 @@ def fuzzy_result(def_speed, def_distance):
     # Some Graphics
     plt.figure()
 
-    plt.plot(distance_axis, x_too_close, 'r', linewidth=1.5, label='Close')
+    plt.plot(distance_axis, x_close_distance, 'r', linewidth=1.5, label='Close')
     plt.plot(distance_axis, x_short_distance, 'b', linewidth=1.5, label='Short')
     plt.plot(distance_axis, x_medium_distance, 'k', linewidth=1.5, label='Avg')
     plt.plot(distance_axis, x_long_distance, 'm', linewidth=1.5, label='Long')
@@ -57,7 +59,7 @@ def fuzzy_result(def_speed, def_distance):
 
     plt.figure()
 
-    plt.plot(speed_axis, v_too_slow, 'r', linewidth=1.5, label='Slowest')
+    plt.plot(speed_axis, v_slowest, 'r', linewidth=1.5, label='Slowest')
     plt.plot(speed_axis, v_slow, 'b', linewidth=1.5, label='Slow')
     plt.plot(speed_axis, v_avg, 'k', linewidth=1.5, label='Medium')
     plt.plot(speed_axis, v_fast, 'm', linewidth=1.5, label='Fast')
@@ -73,12 +75,12 @@ def fuzzy_result(def_speed, def_distance):
     #plt.show()
 
     # Membership
-    member_close_dist = fuzz.interp_membership(distance_axis, x_too_close, def_distance)
+    member_close_dist = fuzz.interp_membership(distance_axis, x_close_distance, def_distance)
     member_short_dist = fuzz.interp_membership(distance_axis, x_short_distance, def_distance)
     member_medium_dist = fuzz.interp_membership(distance_axis, x_medium_distance, def_distance)
     member_high_dist = fuzz.interp_membership(distance_axis, x_long_distance, def_distance)
     
-    member_slowest_speed = fuzz.interp_membership(speed_axis, v_too_slow, def_speed)
+    member_slowest_speed = fuzz.interp_membership(speed_axis, v_slowest, def_speed)
     member_low_speed = fuzz.interp_membership(speed_axis, v_slow, def_speed)
     member_medium_speed = fuzz.interp_membership(speed_axis, v_avg, def_speed)
     member_high_speed = fuzz.interp_membership(speed_axis, v_fast, def_speed)
@@ -174,6 +176,7 @@ R16 Close        Fast        heavy pressure
     print(pressure_value)
     print(pressure)
 
+    # Activation area graph
     break0 = np.zeros_like(break_pressure)
     fig, ax0 = plt.subplots(figsize=(8, 3))
 
@@ -194,8 +197,5 @@ R16 Close        Fast        heavy pressure
 
     plt.show()
 
-
-
    
-    
 fuzzy_result(50, 50)
