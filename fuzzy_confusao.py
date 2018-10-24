@@ -56,6 +56,8 @@ def fuzzy_result(def_speed, def_distance):
     plt.plot(distance_axis, x_medium_distance, 'k', linewidth=1.5, label='Avg')
     plt.plot(distance_axis, x_long_distance, 'm', linewidth=1.5, label='Long')
     plt.title('Distance')
+    plt.legend(('Close', 'Short', 'Medium', 'Long'),
+        loc='upper right')
 
     plt.figure()
 
@@ -64,6 +66,8 @@ def fuzzy_result(def_speed, def_distance):
     plt.plot(speed_axis, v_avg, 'k', linewidth=1.5, label='Medium')
     plt.plot(speed_axis, v_fast, 'm', linewidth=1.5, label='Fast')
     plt.title('Speed')
+    plt.legend(('Very Slow', 'Slow', 'Medium', 'Fast'),
+        loc='upper right')
 
     plt.figure()
 
@@ -71,6 +75,8 @@ def fuzzy_result(def_speed, def_distance):
     plt.plot(break_pressure, medium_break_pressure, 'k', linewidth=1.5, label='Half')
     plt.plot(break_pressure, heavy_break_pressure, 'm', linewidth=1.5, label='Heavy')
     plt.title('Break Pressure')
+    plt.legend(('Light', 'Medium', 'Heavy'),
+        loc='upper right')
 
     #plt.show()
 
@@ -111,30 +117,46 @@ R16 Close        Fast        heavy pressure
 
 """
     ###### First subset - Low Pressure
-    rule_low_1 = np.fmin(member_high_dist, member_slowest_speed)
+    rule_low_1 = np.fmax(member_high_dist, member_slowest_speed)
     rule_low_2 = np.fmin(member_medium_dist, member_slowest_speed)
+    if (member_slowest_speed > 0.75) :
+        rule_low_2 = np.fmin(member_medium_dist, member_slowest_speed)
     rule_low_3 = np.fmin(member_high_dist, member_low_speed)
-    rule_low_4 = np.fmin(member_medium_dist, member_low_speed)
+    if (member_high_dist > 0.75) :
+        rule_low_3 = np.fmax(member_high_dist, member_low_speed)
+    rule_low_4 = member_low_speed
     rule_low_5 = np.fmin(member_high_dist, member_medium_speed)
+    if (member_high_dist > 0.75) :
+        rule_low_5 = np.fmax(member_high_dist, member_medium_speed)
 
     activate_rule_low = np.fmax(rule_low_1, np.fmax(rule_low_2, 
     np.fmax(rule_low_3, np.fmax(rule_low_4, rule_low_5))))
 
-    print("rule_low_1: ", rule_low_1)
-    print("rule_low_2: ", rule_low_2)
-    print("rule_low_3: ", rule_low_3)
-    print("rule_low_4: ", rule_low_4)
-    print("rule_low_5: ", rule_low_5)
-    print("LOW RULE: ", activate_rule_low)
+    #print("rule_low_1: ", rule_low_1)
+    #print("rule_low_2: ", rule_low_2)
+    #print("rule_low_3: ", rule_low_3)
+    #print("rule_low_4: ", rule_low_4)
+    #print("rule_low_5: ", rule_low_5)
+    #print("LOW RULE: ", activate_rule_low)
 
     ###### Second subset - Medium Pressure
     rule_medium_1 = member_short_dist
-    rule_medium_2 = getIntermediate(member_close_dist, member_slowest_speed)
+    rule_medium_2 = np.fmin(member_close_dist, member_slowest_speed)
+    if (member_short_dist > 0.75 and member_slowest_speed > 0.75) :
+        rule_medium_2 = np.fmax(member_close_dist, member_slowest_speed)
     rule_medium_3 = average(member_short_dist, member_low_speed)
-    rule_medium_4 = getIntermediate(member_medium_dist, member_medium_speed)
-    rule_medium_5 = getIntermediate(member_short_dist, member_medium_speed)
-    rule_medium_6 = getIntermediate(member_high_dist, member_high_speed)
-    rule_medium_7 = getIntermediate(member_medium_dist, member_high_speed)
+    rule_medium_4 = np.fmin(member_medium_dist, member_medium_speed)
+    if (member_medium_dist > 0.75 and member_medium_dist > 0.75) :
+        rule_medium_4 = np.fmax(member_medium_dist, member_medium_speed)
+    rule_medium_5 = np.fmin(member_short_dist, member_medium_speed)
+    if (member_short_dist> 0.75 and member_medium_speed > 0.75) :
+        rule_medium_5 = np.fmax(member_short_dist, member_medium_speed)
+    rule_medium_6 = np.fmin(member_high_dist, member_high_speed)
+    if (member_high_dist > 0.75 and member_high_speed > 0.75) :
+        rule_medium_6 = np.fmax(member_high_dist, member_high_speed)
+    rule_medium_7 = np.fmin(member_medium_dist, member_high_speed)
+    if (member_medium_dist > 0.75 and member_high_speed > 0.75) :
+        rule_medium_7 = np.fmax(member_medium_dist, member_high_speed)
 
     activate_rule_medium = np.fmax(rule_medium_1, np.fmax(rule_medium_2, np.fmax(rule_medium_3, 
     np.fmax(rule_medium_4, np.fmax(rule_medium_5, np.fmax(rule_medium_6, rule_medium_7))))))
@@ -151,7 +173,9 @@ R16 Close        Fast        heavy pressure
     ###### Third subset - High Pressure
     rule_high_1 = getIntermediate(member_close_dist, member_low_speed)
     rule_high_2 = getIntermediate(member_close_dist, member_medium_speed)
-    rule_high_3 = np.fmax(member_short_dist, member_high_speed)
+    rule_high_3 = 0
+    if (member_short_dist > 0.75) :
+        rule_high_3 = np.fmax(member_short_dist, member_high_speed)
     rule_high_4 = np.fmax(member_close_dist, member_high_speed)
 
     activate_rule_high = np.fmax(rule_high_1, np.fmax(rule_high_2, np.fmax(rule_high_3, rule_high_4)))
@@ -171,10 +195,11 @@ R16 Close        Fast        heavy pressure
 
     # Calculate defuzzified result
     pressure = fuzz.defuzz(break_pressure, aggregated, 'centroid')
+    if (pressure < 17 or pressure > 83):
+        pressure = fuzz.defuzz(break_pressure, aggregated, 'mom')
     pressure_value = fuzz.interp_membership(break_pressure, aggregated, pressure)
 
-    print(pressure_value)
-    print(pressure)
+    print("Break pressure: ", pressure)
 
     # Activation area graph
     break0 = np.zeros_like(break_pressure)
@@ -198,4 +223,6 @@ R16 Close        Fast        heavy pressure
     plt.show()
 
    
-fuzzy_result(50, 50)
+speed = float(input("Speed: "))
+distance = float(input("Distance: "))
+fuzzy_result(speed, distance)
