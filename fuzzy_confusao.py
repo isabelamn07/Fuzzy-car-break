@@ -1,6 +1,7 @@
-import numpy as np 
-import skfuzzy as fuzz
 import matplotlib.pyplot as plt
+import numpy as np
+import skfuzzy as fuzz
+
 
 # # Second version test
 """
@@ -8,6 +9,12 @@ Problem: Car 0 - 100 km/h
          Distance: 0 - 100m
          Define the break pressure
 """
+
+def average(val1, val2):
+    return (val1 + val2) / 2
+
+def getIntermediate(val1, val2):
+    return val2 if (val1 > 0.75) else val1
 
 def fuzzy_result(def_speed, def_distance):
     # input
@@ -29,15 +36,15 @@ def fuzzy_result(def_speed, def_distance):
     # # Speed: too_slow, slow, avg, fast
     # input
     v_too_slow = fuzz.gaussmf(speed_axis, 0, 16)
-    v_slow = fuzz.gaussmf(speed_axis, 40, 6)
-    v_avg = fuzz.gaussmf(speed_axis, 70, 7)
-    v_fast = fuzz.gaussmf(speed_axis, 100, 16)
+    v_slow = fuzz.gaussmf(speed_axis, 25, 8)
+    v_avg = fuzz.gaussmf(speed_axis, 50, 16)
+    v_fast = fuzz.gaussmf(speed_axis, 100, 10)
 
     # # break pressure: light,medium, heavy
 
-    light_break_pressure = fuzz.gaussmf(speed_axis, 0, 20)
-    medium_break_pessure = fuzz.gaussmf(speed_axis, 50, 10)
-    heavy_break_pressure = fuzz.gaussmf(speed_axis, 100, 20)
+    light_break_pressure = fuzz.gaussmf(break_pressure, 0, 20)
+    medium_break_pressure = fuzz.gaussmf(break_pressure, 50, 10)
+    heavy_break_pressure = fuzz.gaussmf(break_pressure, 100, 20)
 
     # Some Graphics
     plt.figure()
@@ -59,11 +66,11 @@ def fuzzy_result(def_speed, def_distance):
     plt.figure()
 
     plt.plot(break_pressure, light_break_pressure, 'b', linewidth=1.5, label='Light')
-    plt.plot(break_pressure, medium_break_pessure, 'k', linewidth=1.5, label='Half')
+    plt.plot(break_pressure, medium_break_pressure, 'k', linewidth=1.5, label='Half')
     plt.plot(break_pressure, heavy_break_pressure, 'm', linewidth=1.5, label='Heavy')
     plt.title('Break Pressure')
 
-    plt.show()
+    #plt.show()
 
     # Membership
     member_close_dist = fuzz.interp_membership(distance_axis, x_too_close, def_distance)
@@ -80,17 +87,17 @@ def fuzzy_result(def_speed, def_distance):
     """
     Rules: 
     Distance  /  Speed    /  Pressure 
-R1  High          Slowest     low pressure 
+R1  High         Slowest     low pressure 
 R2  Medium       Slowest     low pressure
-R3  Short        Slowest     low pressure
+R3  Short        Slowest     medium pressure
 R4  Close        Slowest     medium pressure
 
-R5  High          Low         low pressure      
+R5  High         Low        low pressure      
 R6  Medium       Low         low pressure
 R7  Short        Low         medium pressure
 R8  Close        Low         heavy pressure 
 
-R9 High           Medium      low pressure   
+R9 High          Medium      low pressure   
 R10 Medium       Medium      medium pressure
 R11 Short        Medium      medium pressure
 R12 Close        Medium      heavy pressure 
@@ -101,28 +108,94 @@ R15 Short        Fast        heavy pressure
 R16 Close        Fast        heavy pressure
 
 """
+    ###### First subset - Low Pressure
+    rule_low_1 = np.fmin(member_high_dist, member_slowest_speed)
+    rule_low_2 = np.fmin(member_medium_dist, member_slowest_speed)
+    rule_low_3 = np.fmin(member_high_dist, member_low_speed)
+    rule_low_4 = np.fmin(member_medium_dist, member_low_speed)
+    rule_low_5 = np.fmin(member_high_dist, member_medium_speed)
 
-    rule1 = np.fmax(member_high_dist, member_low_speed)
-    print(rule1)
-    activate_rule1 = np.fmin(rule1, light_break_pressure)
+    activate_rule_low = np.fmax(rule_low_1, np.fmax(rule_low_2, 
+    np.fmax(rule_low_3, np.fmax(rule_low_4, rule_low_5))))
 
-    rule2 = np.fmax(member_high_dist, member_medium_speed)
-    activate_rule2 = np.fmin(rule2, light_break_pressure)
+    print("rule_low_1: ", rule_low_1)
+    print("rule_low_2: ", rule_low_2)
+    print("rule_low_3: ", rule_low_3)
+    print("rule_low_4: ", rule_low_4)
+    print("rule_low_5: ", rule_low_5)
+    print("LOW RULE: ", activate_rule_low)
 
-    rule3 = np.fmax(member_high_dist, member_high_speed)
-    activate_rule3 = np.fmin(rule3, light_break_pressure)
+    ###### Second subset - Medium Pressure
+    rule_medium_1 = member_short_dist
+    rule_medium_2 = getIntermediate(member_close_dist, member_slowest_speed)
+    rule_medium_3 = average(member_short_dist, member_low_speed)
+    rule_medium_4 = getIntermediate(member_medium_dist, member_medium_speed)
+    rule_medium_5 = getIntermediate(member_short_dist, member_medium_speed)
+    rule_medium_6 = getIntermediate(member_high_dist, member_high_speed)
+    rule_medium_7 = getIntermediate(member_medium_dist, member_high_speed)
 
-    rule4 = np.fmax(member_high_dist, member_slowest_speed)
-    activate_rule4 = np.fmin(rule4, light_break_pressure)
+    activate_rule_medium = np.fmax(rule_medium_1, np.fmax(rule_medium_2, np.fmax(rule_medium_3, 
+    np.fmax(rule_medium_4, np.fmax(rule_medium_5, np.fmax(rule_medium_6, rule_medium_7))))))
 
-    
+    #print("rule_medium_1: ", rule_medium_1)
+    #print("rule_medium_2: ", rule_medium_2)
+    #print("rule_medium_3: ", rule_medium_3)
+    #print("rule_medium_4: ", rule_medium_4)
+    #print("rule_medium_5: ", rule_medium_5)
+    #print("rule_medium_6: ", rule_medium_6)
+    #print("rule_medium_7: ", rule_medium_7)
+    #print("MEDIUM RULE: ", activate_rule_medium)
 
-    # Aggregate all three output membership functions together
-    aggregated = np.fmax(activate_rule1, np.fmax(activate_rule2, np.fmax(activate_rule3, activate_rule4)))
+    ###### Third subset - High Pressure
+    rule_high_1 = getIntermediate(member_close_dist, member_low_speed)
+    rule_high_2 = getIntermediate(member_close_dist, member_medium_speed)
+    rule_high_3 = np.fmax(member_short_dist, member_high_speed)
+    rule_high_4 = np.fmax(member_close_dist, member_high_speed)
 
-    # Calculate defuzzified result,
+    activate_rule_high = np.fmax(rule_high_1, np.fmax(rule_high_2, np.fmax(rule_high_3, rule_high_4)))
+
+    #print("rule_high_1: ", rule_high_1)
+    #print("rule_high_2: ", rule_high_2)
+    #print("rule_high_3: ", rule_high_3)
+    #print("rule_high_4: ", rule_high_4)
+    #print("HIGH RULE: ", activate_rule_high)
+
+    ###### Rule activations
+    brake_activation_low = np.fmin(activate_rule_low, light_break_pressure)
+    brake_activation_medium = np.fmin(activate_rule_medium,  medium_break_pressure)
+    brake_activation_high = np.fmin(activate_rule_high,  heavy_break_pressure)
+
+    aggregated = np.fmax(brake_activation_low, np.fmax(brake_activation_medium, brake_activation_high))
+
+    # Calculate defuzzified result
     pressure = fuzz.defuzz(break_pressure, aggregated, 'centroid')
+    pressure_value = fuzz.interp_membership(break_pressure, aggregated, pressure)
+
+    print(pressure_value)
     print(pressure)
 
-fuzzy_result(9.9, 26.1)
+    break0 = np.zeros_like(break_pressure)
+    fig, ax0 = plt.subplots(figsize=(8, 3))
 
+    ax0.plot(break_pressure, brake_activation_low, 'b', linewidth=0.5, linestyle='--', )
+    ax0.plot(break_pressure, brake_activation_medium, 'g', linewidth=0.5, linestyle='--')
+    ax0.plot(break_pressure, brake_activation_high, 'r', linewidth=0.5, linestyle='--')
+    ax0.fill_between(break_pressure, break0, aggregated, facecolor='Orange', alpha=0.7)
+    ax0.plot([pressure, pressure], [0, pressure_value], 'k', linewidth=1.5, alpha=0.9)
+    ax0.set_title('Aggregated membership and result (line)')
+
+    for ax in (ax0,):
+        ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+
+   
+    
+fuzzy_result(50, 50)
